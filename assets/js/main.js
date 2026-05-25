@@ -1,15 +1,19 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165/build/three.module.js';
+import * as THREE from 'three';
 
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.165/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.165/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-import { VRButton } from 'https://cdn.jsdelivr.net/npm/three@0.165/examples/jsm/webxr/VRButton.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 
 // ESCENA
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x202020);
+
+scene.fog = new THREE.Fog(0x050510, 15, 60);
+
+scene.background = new THREE.Color(0x050510);
+
 
 // CAMARA
 const camera = new THREE.PerspectiveCamera(
@@ -19,7 +23,8 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.set(0, 2, 5);
+camera.position.set(0, 5, 15);
+
 
 // RENDERER
 const renderer = new THREE.WebGLRenderer({
@@ -27,46 +32,78 @@ const renderer = new THREE.WebGLRenderer({
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
+
 renderer.xr.enabled = true;
 
 document.getElementById('container3D')
   .appendChild(renderer.domElement);
 
+
 // BOTON VR
-document.body.appendChild(VRButton.createButton(renderer));
+document.body.appendChild(
+  VRButton.createButton(renderer)
+);
+
 
 // CONTROLES
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls(
+  camera,
+  renderer.domElement
+);
 
 controls.enableDamping = true;
 
+
 // LUCES
-const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+const ambientLight =
+new THREE.AmbientLight(0x00ffff, 1.2);
+
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+
+const pinkLight =
+new THREE.PointLight(0xff00ff, 40, 100);
+
+pinkLight.position.set(10, 15, 10);
+
+scene.add(pinkLight);
+
+
+const blueLight =
+new THREE.PointLight(0x00ffff, 40, 100);
+
+blueLight.position.set(-10, 10, -10);
+
+scene.add(blueLight);
+
+
+const directionalLight =
+  new THREE.DirectionalLight(0xffffff, 2);
 
 directionalLight.position.set(5, 10, 5);
 
 scene.add(directionalLight);
 
+
 // GRID
 const grid = new THREE.GridHelper(20, 20);
+
 scene.add(grid);
+
 
 // CARGAR MODELO
 const loader = new GLTFLoader();
 
 loader.load(
-  '../models/modelo.glb',
+  './assets/models/Aula_Y8.glb',
 
-  function(gltf){
+  function (gltf) {
 
     const model = gltf.scene;
 
     model.position.set(0, 0, 0);
 
-    model.scale.set(1,1,1);
+    model.scale.set(1, 1, 1);
 
     scene.add(model);
 
@@ -74,25 +111,22 @@ loader.load(
 
   },
 
-  function(xhr){
+  undefined,
 
-    console.log(
-      (xhr.loaded / xhr.total * 100) + '% cargado'
-    );
+  function (error) {
 
-  },
-
-  function(error){
-
-    console.error('Error cargando modelo:', error);
+    console.error(error);
 
   }
+
 );
+
 
 // RESPONSIVE
 window.addEventListener('resize', () => {
 
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.aspect =
+    window.innerWidth / window.innerHeight;
 
   camera.updateProjectionMatrix();
 
@@ -102,6 +136,7 @@ window.addEventListener('resize', () => {
   );
 
 });
+
 
 // ANIMACION
 renderer.setAnimationLoop(() => {
